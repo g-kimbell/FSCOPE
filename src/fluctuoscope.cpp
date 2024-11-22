@@ -393,7 +393,7 @@ int MC_sigma(double t,double h,double Tctau,double Tctauphi,double &sigAL,double
 extern "C" {
     void MC_sigma_array(double* t, double* h, double* Tctau, double* Tctauphi, double* results, int size)
     {
-        #pragma omp parallel for
+        #pragma omp parallel for schedule(dynamic)
         for (int i = 0; i < size; ++i)
         {
             MC_sigma(t[i], h[i], Tctau[i], Tctauphi[i], results[i * 5], results[i * 5 + 1], results[i * 5 + 2], results[i * 5 + 3], results[i * 5 + 4]);

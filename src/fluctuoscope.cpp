@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <omp.h>
 
 #include "stringutils.h"
 #include "fileutils.h"
@@ -388,6 +389,43 @@ int MC_sigma(double t,double h,double Tctau,double Tctauphi,double &sigAL,double
     return res;
 };
 
+// Expose the MC_sigma function to C for use with Python ctypes module
+extern "C" {
+    void MC_sigma_array(double* t, double* h, double* Tctau, double* Tctauphi, double* results, int size)
+    {
+        #pragma omp parallel for
+        for (int i = 0; i < size; ++i)
+        {
+            MC_sigma(t[i], h[i], Tctau[i], Tctauphi[i], results[i * 5], results[i * 5 + 1], results[i * 5 + 2], results[i * 5 + 3], results[i * 5 + 4]);
+        }
+    }
+}
+extern "C" {
+    void hc2_array(double* t, double* results, int size)
+    {
+        double h1,h2,hm,c,f1,f2,fm;
+        int Nbs=32;//<10^-9 error
+        #pragma omp parallel for
+        for (int i = 0; i < size; ++i)
+        {
+            if(t[i]>=1.0) results[i]=0.0;
+            else if(t[i]<1e-6) results[i]=hc20;
+            else {
+                //solve log(t)+Psi(1/2+2/pi^2*h/t)-Psi(1/2)=0 -> bisection
+                c=log(t[i])-c2;
+                h2=(1-t[i]);f2=c+Digamma(0.5+c5*h2/t[i]);//f2>0
+                h1=hc20*h2;f1=c+Digamma(0.5+c5*h1/t[i]);//f1<0
+                for(int j=0;j<Nbs;j++)
+                {
+                    hm=0.5*(h1+h2);fm=c+Digamma(0.5+c5*hm/t[i]);
+                    if(fm<0.0) {h1=hm;f1=fm;}
+                    else {h2=hm;f2=fm;}
+                }
+                results[i]=0.5*(h1+h2);
+            }
+        }
+    }
+}
 
 int MC_sigma_m(int m,double t,double h,double Tctauphi,double &sigAL,double &sigMTsum,double &sigMTint,double &sigDOS,double &sigCC)
 {

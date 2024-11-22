@@ -8,6 +8,7 @@
 #define fileutilsH
 
 #include <string>
+#include <cstdint>
 
 using namespace std;
 
@@ -20,7 +21,7 @@ using namespace std;
 //pointer and length/position size
 #define FileUtilsBits 8*sizeof(long)
 
-typedef long fHandle;
+typedef intptr_t fHandle;
 
 #ifdef __cplusplus          
 

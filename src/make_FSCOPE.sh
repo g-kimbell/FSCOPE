@@ -18,4 +18,4 @@ $COMP main.cpp fluctuoscope.o  AGM_sfunctions.o fileutils.o stringutils.o paramf
 
 # For compiling a shared object to use functions in e.g. python ctypes module
 $COMP -shared -o $SO -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp
-fluctuoscope.cpp $CFLAGS -static
+fluctuoscope.cpp $CFLAGS

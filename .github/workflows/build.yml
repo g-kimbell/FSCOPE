@@ -78,13 +78,19 @@ jobs:
 
       - name: Set up Homebrew and dependencies
         run: |
-          brew install llvm libomp
+          brew install llvm
+          brew install libomp  # First install (might be arm64)
+          arch -x86_64 brew install libomp  # Install x86_64 version
+          lipo -create $(brew --prefix libomp)/lib/libomp.dylib $(arch -x86_64 brew --prefix libomp)/lib/libomp.dylib -output /usr/local/lib/libomp.dylib
+
           echo "LLVM_PATH=$(brew --prefix llvm)" >> $GITHUB_ENV
           echo "export PATH=$(brew --prefix llvm)/bin:$PATH" >> $GITHUB_ENV
-          echo "export LDFLAGS=-L$(brew --prefix llvm)/lib" >> $GITHUB_ENV
-          echo "export CPPFLAGS=-I$(brew --prefix llvm)/include" >> $GITHUB_ENV
+          echo "export LDFLAGS=-L$(brew --prefix llvm)/lib -L/usr/local/lib" >> $GITHUB_ENV
+          echo "export CPPFLAGS=-I$(brew --prefix llvm)/include -I$(brew --prefix libomp)/include" >> $GITHUB_ENV
           echo "export CC=$(brew --prefix llvm)/bin/clang" >> $GITHUB_ENV
           echo "export CXX=$(brew --prefix llvm)/bin/clang++" >> $GITHUB_ENV
+          echo "export LIBOMP_PATH=/usr/local/lib/libomp.dylib" >> $GITHUB_ENV
+
 
       - name: Build for macOS x86_64
         run: |

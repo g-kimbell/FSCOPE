@@ -9,22 +9,22 @@ using namespace std;
 //---------------------------------------------------------------------------
 
 
-//copied from complex.h w/o div operation
+//custom complex copied from complex.h w/o div operation
 template <class _Tp>
-struct complex {
+struct ccomplex {
   typedef _Tp value_type;
-  typedef complex<_Tp> _Self;
+  typedef ccomplex<_Tp> _Self;
     // Data members.
   value_type re;
   value_type im;
 
   // Constructors, destructor, assignment operator.
-  complex() : re(0), im(0) {}
-  complex(const value_type& __x)
+  ccomplex() : re(0), im(0) {}
+  ccomplex(const value_type& __x)
     : re(__x), im(0) {}
-  complex(const value_type& __x, const value_type& __y)
+  ccomplex(const value_type& __x, const value_type& __y)
     : re(__x), im(__y) {}
-  complex(const _Self& __z)
+  ccomplex(const _Self& __z)
     : re(__z.re), im(__z.im) {}
 
   _Self& operator=(const _Self& __z) {
@@ -79,7 +79,7 @@ struct complex {
   }
 };
 
-typedef complex<double> dcomplex;
+typedef ccomplex<double> dcomplex;
 
 //simple structures: more sophisticated class are part of the linalg module
 

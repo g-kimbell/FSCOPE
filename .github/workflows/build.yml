@@ -17,16 +17,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Visual Studio Build Tools
-        uses: microsoft/setup-msbuild@v2
-
-      - name: Install dependencies (MSYS2)
-        run: |
-          choco install msys2
-          pacman -S mingw-w64-x86_64-gcc
-          pacman -S mingw-w64-x86_64-libomp
+      - name: Set up MSYS2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-libomp
+            make
 
       - name: Build for Windows
+        shell: msys2 {0}
         run: |
           cd src
           g++ -O3 -lm -fopenmp AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp -c
@@ -82,9 +83,9 @@ jobs:
       - name: Build for macOS x86_64
         run: |
           cd src
-          clang++ -O3 -lm -fopenmp AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp -I/usr/local/include -L/usr/local/lib -lomp -arch x86_64 -c
-          clang++ main.cpp fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o -O3 -lm -fopenmp -I/usr/local/include -L/usr/local/lib -lomp -arch x86_64 -o FSCOPE_mac_x86_64
-          clang++ -O3 -lm -fopenmp -shared -I/usr/local/include -L/usr/local/lib -lomp -arch x86_64 -o fluctuoscopy_extC_x86_64.dylib -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
+          clang++ -O3 -lm -Xpreprocessor -fopenmp AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp -I/usr/local/include -L/usr/local/lib -lomp -arch x86_64 -c
+          clang++ main.cpp fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o -O3 -lm -Xpreprocessor -fopenmp -I/usr/local/include -L/usr/local/lib -lomp -arch x86_64 -o FSCOPE_mac_x86_64
+          clang++ -O3 -lm -Xpreprocessor -fopenmp -shared -I/usr/local/include -L/usr/local/lib -lomp -arch x86_64 -o fluctuoscopy_extC_x86_64.dylib -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
   
       - name: Build for macOS arm64
         run: |

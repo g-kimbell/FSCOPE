@@ -28,9 +28,10 @@ jobs:
 
       - name: Build for Windows
         run: |
+          cd src
           g++ -O3 -lm -fopenmp AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp -c
-          g++ main.cpp fluctuoscope.o  AGM_sfunctions.o fileutils.o stringutils.o paramfile.o -O3 -lm -fopenmp -o FSCOPE_windows.exe
-          g++ -O3 -lm -fopenmp -shared -o fluctuoscopy_extC.dll -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
+          g++ main.cpp fluctuoscope.o  AGM_sfunctions.o fileutils.o stringutils.o paramfile.o -O3 -lm -fopenmp -o ../FSCOPE_windows.exe
+          g++ -O3 -lm -fopenmp -shared -o ../fluctuoscopy_extC.dll -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
 
       - name: Upload Windows Build
         uses: actions/upload-artifact@v4
@@ -54,9 +55,10 @@ jobs:
 
       - name: Build for Linux
         run: |
+          cd src
           g++ -O3 -lm -fopenmp AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp -c
-          g++ main.cpp fluctuoscope.o  AGM_sfunctions.o fileutils.o stringutils.o paramfile.o -O3 -lm -fopenmp -o FSCOPE_linux
-          g++ -O3 -lm -fopenmp -shared -o fluctuoscopy_extC.so -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
+          g++ main.cpp fluctuoscope.o  AGM_sfunctions.o fileutils.o stringutils.o paramfile.o -O3 -lm -fopenmp -o ../FSCOPE_linux
+          g++ -O3 -lm -fopenmp -shared -o ../fluctuoscopy_extC.so -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
 
       - name: Upload Linux Build
         uses: actions/upload-artifact@v4
@@ -79,6 +81,7 @@ jobs:
           
       - name: Build for macOS x86_64
         run: |
+          cd src
           clang++ -O3 -lm -fopenmp AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp -c
           clang++ main.cpp fluctuoscope.o  AGM_sfunctions.o fileutils.o stringutils.o paramfile.o -O3 -lm -fopenmp -o FSCOPE_mac_x86_64
           clang++ -O3 -lm -fopenmp -shared -o fluctuoscopy_extC_x86_64.dylib -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
@@ -91,8 +94,8 @@ jobs:
   
       - name: Combine into Universal Binary
         run: |
-          lipo -create fluctuoscopy_extC_x86_64.dylib fluctuoscopy_extC_arm64.dylib -output fluctuoscopy_extC.dylib
-          lipo -create FSCOPE_mac_x86_64 FSCOPE_mac_arm64 -output FSCOPE_mac
+          lipo -create fluctuoscopy_extC_x86_64.dylib fluctuoscopy_extC_arm64.dylib -output ../fluctuoscopy_extC.dylib
+          lipo -create FSCOPE_mac_x86_64 FSCOPE_mac_arm64 -output ../FSCOPE_mac
   
       - name: Upload macOS Universal Binary
         uses: actions/upload-artifact@v4

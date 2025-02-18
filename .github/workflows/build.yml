@@ -116,7 +116,7 @@ jobs:
 
       - name: Set up Homebrew and dependencies
         run: |
-          brew install llvm limbomp
+          brew install llvm libomp
 
           echo "LLVM_PATH=$(brew --prefix llvm)" >> $GITHUB_ENV
           echo "export PATH=$(brew --prefix llvm)/bin:$PATH" >> $GITHUB_ENV

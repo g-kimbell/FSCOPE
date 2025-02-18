@@ -108,7 +108,7 @@ jobs:
             FSCOPE_mac_x86
 
   # macOS (arm64) Build
-  macos-universal:
+  macos-arm64:
     runs-on: macos-latest
     steps:
       - name: Checkout Code
@@ -147,11 +147,23 @@ jobs:
             fluctuoscopy_extC_arm64.dylib
             FSCOPE_mac_arm64
 
-        # Download the x86 build and combine with the arm64 build
+  combine-macos:
+    runs-on: macos-latest
+    needs: [macos-x86, macos-arm64]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Download macOS x86 Build
         uses: actions/download-artifact@v4
         with:
           name: macos-x86-build
+          path: .
+
+      - name: Download macOS arm64 Build
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-arm64-build
           path: .
 
       - name: Combine into Universal Binary

@@ -168,8 +168,8 @@ jobs:
 
       - name: Combine into Universal Binary
         run: |
-          lipo -create fluctuoscopy_extC_x86_64.dylib fluctuoscopy_extC_arm64.dylib -output fluctuoscopy_extC.dylib
-          lipo -create FSCOPE_mac_x86_64 FSCOPE_mac_arm64 -output FSCOPE_mac
+          lipo -create fluctuoscopy_extC_x86.dylib fluctuoscopy_extC_arm64.dylib -output fluctuoscopy_extC.dylib
+          lipo -create FSCOPE_mac_x86 FSCOPE_mac_arm64 -output FSCOPE_mac
 
       - name: Upload macOS Universal Binary
         uses: actions/upload-artifact@v4

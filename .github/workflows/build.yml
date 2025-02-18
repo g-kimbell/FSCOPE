@@ -69,13 +69,13 @@ jobs:
             fluctuoscope_extC.so
             FSCOPE_linux
 
-  # maxOS (x86) Build
+  # macOS (x86) Build
   macos-x86:
     runs-on: macos-13
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-    
+  
       - name: Set up Homebrew and dependencies
         run: |
           brew install llvm libomp
@@ -85,7 +85,14 @@ jobs:
           echo "export CPPFLAGS=-I$(brew --prefix llvm)/include -I$(brew --prefix libomp)/include" >> $GITHUB_ENV
           echo "export CC=$(brew --prefix llvm)/bin/clang" >> $GITHUB_ENV
           echo "export CXX=$(brew --prefix llvm)/bin/clang++" >> $GITHUB_ENV
-    
+  
+      - name: Find the static libomp.a library (x86)
+        run: |
+          # Find the path to libomp.a and save it to an environment variable
+          LIBOMP_PATH=$(find $(brew --prefix libomp) -name "libomp.a" | head -n 1)
+          echo "LIBOMP_PATH=$LIBOMP_PATH" >> $GITHUB_ENV
+          echo "Found libomp.a at: $LIBOMP_PATH"
+  
       - name: Build for macOS (x86)
         run: |
           cd src
@@ -93,17 +100,15 @@ jobs:
               -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib \
               -c AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
           $(brew --prefix llvm)/bin/clang++ main.cpp fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o \
-              -O3 -lm -Xpreprocessor -fopenmp -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib \
+              -O3 -lm -Xpreprocessor -fopenmp \
+              -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib \
+              -L$LIBOMP_PATH -lomp -static-libgcc -static-libstdc++ \
               -o ../FSCOPE_mac_x86
           $(brew --prefix llvm)/bin/clang++ -O3 -lm -Xpreprocessor -fopenmp \
-              -shared -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib \
-              -o ../fluctuoscope_extC_x86_dynamic.dylib -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
-          $(brew --prefix llvm)/bin/clang++ -O3 -lm -Xpreprocessor -fopenmp \
               -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib \
-              -L/usr/local/opt/libomp/lib/libomp.a -lomp \
-              -static-libgcc -static-libstdc++ -o ../fluctuoscope_extC_x86.dylib \
-              -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
-
+              -L$LIBOMP_PATH -lomp -static-libgcc -static-libstdc++ \
+              -o ../fluctuoscope_extC_x86.dylib -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
+  
       - name: Upload macOS (x86) Build
         uses: actions/upload-artifact@v4
         with:
@@ -118,18 +123,24 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-
+  
       - name: Set up Homebrew and dependencies
         run: |
           brew install llvm libomp
-
           echo "LLVM_PATH=$(brew --prefix llvm)" >> $GITHUB_ENV
           echo "export PATH=$(brew --prefix llvm)/bin:$PATH" >> $GITHUB_ENV
           echo "export LDFLAGS=-L$(brew --prefix llvm)/lib" >> $GITHUB_ENV
           echo "export CPPFLAGS=-I$(brew --prefix llvm)/include -I$(brew --prefix libomp)/include" >> $GITHUB_ENV
           echo "export CC=$(brew --prefix llvm)/bin/clang" >> $GITHUB_ENV
           echo "export CXX=$(brew --prefix llvm)/bin/clang++" >> $GITHUB_ENV
-
+  
+      - name: Find the static libomp.a library (arm64)
+        run: |
+          # Find the path to libomp.a and save it to an environment variable
+          LIBOMP_PATH=$(find $(brew --prefix libomp) -name "libomp.a" | head -n 1)
+          echo "LIBOMP_PATH=$LIBOMP_PATH" >> $GITHUB_ENV
+          echo "Found libomp.a at: $LIBOMP_PATH"
+  
       - name: Build for macOS arm64
         run: |
           cd src
@@ -137,17 +148,15 @@ jobs:
               -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib \
               -c AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
           $(brew --prefix llvm)/bin/clang++ main.cpp fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o \
-              -O3 -lm -Xpreprocessor -fopenmp -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib \
+              -O3 -lm -Xpreprocessor -fopenmp \
+              -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib \
+              -L$LIBOMP_PATH -lomp -static-libgcc -static-libstdc++ \
               -o ../FSCOPE_mac_arm64
           $(brew --prefix llvm)/bin/clang++ -O3 -lm -Xpreprocessor -fopenmp \
-              -shared -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib \
-              -o ../fluctuoscope_extC_arm64_dynamic.dylib -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
-          $(brew --prefix llvm)/bin/clang++ -O3 -lm -Xpreprocessor -fopenmp \
               -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib \
-              -L/usr/local/opt/libomp/lib/libomp.a -lomp \
-              -static-libgcc -static-libstdc++ -o ../fluctuoscope_extC_arm64.dylib \
-              -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
-
+              -L$LIBOMP_PATH -lomp -static-libgcc -static-libstdc++ \
+              -o ../fluctuoscope_extC_arm64.dylib -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
+  
         # upload to artifacts
       - name: Upload macOS arm64 Build
         uses: actions/upload-artifact@v4

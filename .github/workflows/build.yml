@@ -15,7 +15,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Visual Studio Build Tools
         uses: microsoft/setup-msbuild@v1.0
@@ -33,7 +33,7 @@ jobs:
           g++ -O3 -lm -fopenmp -shared -o fluctuoscopy_extC.dll -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
 
       - name: Upload Windows Build
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: |
@@ -45,7 +45,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up GCC and dependencies
         run: |
@@ -59,7 +59,7 @@ jobs:
           g++ -O3 -lm -fopenmp -shared -o fluctuoscopy_extC.so -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
 
       - name: Upload Linux Build
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: linux-build
           path: |
@@ -71,7 +71,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
   
       - name: Set up Homebrew and dependencies
         run: |
@@ -95,7 +95,7 @@ jobs:
           lipo -create FSCOPE_mac_x86_64 FSCOPE_mac_arm64 -output FSCOPE_mac
   
       - name: Upload macOS Universal Binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: macos-universal-build
           path: |

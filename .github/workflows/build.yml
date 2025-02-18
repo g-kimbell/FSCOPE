@@ -23,7 +23,7 @@ jobs:
           msystem: MINGW64
           install: >-
             mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-libomp
+            mingw-w64-x86_64-clang
             make
 
       - name: Build for Windows
@@ -79,19 +79,22 @@ jobs:
       - name: Set up Homebrew and dependencies
         run: |
           brew install libomp
+          echo "export PATH=\"$(brew --prefix llvm)/bin:$PATH\"" >> $GITHUB_ENV
+          echo "export LDFLAGS=\"-L$(brew --prefix llvm)/lib\"" >> $GITHUB_ENV
+          echo "export CPPFLAGS=\"-I$(brew --prefix llvm)/include\"" >> $GITHUB_ENV
           
       - name: Build for macOS x86_64
         run: |
           cd src
-          clang++ -O3 -lm -Xpreprocessor -fopenmp AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp -I/usr/local/include -L/usr/local/lib -lomp -arch x86_64 -c
-          clang++ main.cpp fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o -O3 -lm -Xpreprocessor -fopenmp -I/usr/local/include -L/usr/local/lib -lomp -arch x86_64 -o FSCOPE_mac_x86_64
-          clang++ -O3 -lm -Xpreprocessor -fopenmp -shared -I/usr/local/include -L/usr/local/lib -lomp -arch x86_64 -o fluctuoscopy_extC_x86_64.dylib -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
+          clang++ -O3 -lm -Xpreprocessor -fopenmp AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp -I/usr/local/include -L/usr/local/lib -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib -lomp -arch x86_64 -c
+          clang++ main.cpp fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o -O3 -lm -Xpreprocessor -fopenmp -I/usr/local/include -L/usr/local/lib -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib -lomp -arch x86_64 -o FSCOPE_mac_x86_64
+          clang++ -O3 -lm -Xpreprocessor -fopenmp -shared -I/usr/local/include -L/usr/local/lib -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib -lomp -arch x86_64 -o fluctuoscopy_extC_x86_64.dylib -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
   
       - name: Build for macOS arm64
         run: |
-          clang++ -O3 -lm -fopenmp AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp -I/usr/local/include -L/usr/local/lib -lomp -arch arm64 -c
-          clang++ main.cpp fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o -O3 -lm -fopenmp -I/usr/local/include -L/usr/local/lib -lomp -arch arm64 -o FSCOPE_mac_arm64
-          clang++ -O3 -lm -fopenmp -shared -I/usr/local/include -L/usr/local/lib -lomp -arch arm64 -o fluctuoscopy_extC_arm64.dylib -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
+          clang++ -O3 -lm -fopenmp AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp -I/usr/local/include -L/usr/local/lib -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib -lomp -arch arm64 -c
+          clang++ main.cpp fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o -O3 -lm -fopenmp -I/usr/local/include -L/usr/local/lib -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib -lomp -arch arm64 -o FSCOPE_mac_arm64
+          clang++ -O3 -lm -fopenmp -shared -I/usr/local/include -L/usr/local/lib -I$(brew --prefix llvm)/include -L$(brew --prefix llvm)/lib -lomp -arch arm64 -o fluctuoscopy_extC_arm64.dylib -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
   
       - name: Combine into Universal Binary
         run: |

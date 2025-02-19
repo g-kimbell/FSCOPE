@@ -94,14 +94,15 @@ jobs:
           $(brew --prefix llvm)/bin/clang++ -O3 -lm -Xpreprocessor -fopenmp \
               -I$(brew --prefix llvm)/include -c AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
           
-          $(brew --prefix llvm)/bin/clang++ main.cpp fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o \
-              -O3 -lm -Xpreprocessor -fopenmp \
+          $(brew --prefix llvm)/bin/clang++ -O3 -lm -Xpreprocessor -fopenmp \
               -I$(brew --prefix llvm)/include -Wl,-force_load,$LIBOMP_PATH \
+              main.cpp fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o \
               -o ../FSCOPE_mac_x86
           
           $(brew --prefix llvm)/bin/clang++ -O3 -lm -Xpreprocessor -fopenmp \
               -I$(brew --prefix llvm)/include -Wl,-force_load,$LIBOMP_PATH \
-              -o ../fluctuoscope_extC_x86.dylib -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
+              -shared -fPIC AGM_sfunctions.o fileutils.o stringutils.o paramfile.o fluctuoscope.o \
+              -o ../fluctuoscope_extC_x86.dylib
   
       - name: Upload macOS (x86) Build
         uses: actions/upload-artifact@v4
@@ -135,16 +136,16 @@ jobs:
           cd src
           $(brew --prefix llvm)/bin/clang++ -O3 -lm -Xpreprocessor -fopenmp \
               -I$(brew --prefix llvm)/include -c AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
-          
-          $(brew --prefix llvm)/bin/clang++ main.cpp fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o \
-              -O3 -lm -Xpreprocessor -fopenmp \
-              -I$(brew --prefix llvm)/include -Wl,-force_load,$LIBOMP_PATH \
-              -o ../FSCOPE_mac_arm64
-          
+
           $(brew --prefix llvm)/bin/clang++ -O3 -lm -Xpreprocessor -fopenmp \
               -I$(brew --prefix llvm)/include -Wl,-force_load,$LIBOMP_PATH \
-              -o ../fluctuoscope_extC_arm64.dylib -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
-  
+              main.cpp fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o \
+              -o ../FSCOPE_mac_arm64
+
+          $(brew --prefix llvm)/bin/clang++ -O3 -lm -Xpreprocessor -fopenmp \
+              -I$(brew --prefix llvm)/include -Wl,-force_load,$LIBOMP_PATH \
+              -shared -fPIC AGM_sfunctions.o fileutils.o stringutils.o paramfile.o fluctuoscope.o \
+              -o ../fluctuoscope_extC_arm64.dylib
         # upload to artifacts
       - name: Upload macOS arm64 Build
         uses: actions/upload-artifact@v4

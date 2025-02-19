@@ -30,9 +30,11 @@ jobs:
         shell: msys2 {0}
         run: |
           cd src
-          g++ -O3 -lm -fopenmp AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp -c
-          g++ main.cpp fluctuoscope.o  AGM_sfunctions.o fileutils.o stringutils.o paramfile.o -O3 -lm -fopenmp -o ../FSCOPE_windows.exe
-          g++ -O3 -lm -fopenmp -shared -o ../fluctuoscope_extC.dll -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
+          g++ -O3 -lm -fopenmp -c AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
+          g++ main.cpp fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o -O3 -lm -fopenmp -static-libgcc -static-libstdc++ \
+              -Wl,-Bstatic -lgomp -Wl,-Bdynamic -o ../FSCOPE_windows.exe
+          g++ -O3 -lm -fopenmp -shared -o ../fluctuoscope_extC.dll -fPIC fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o \
+              -static-libgcc -static-libstdc++ -Wl,-Bstatic -lgomp -Wl,-Bdynamic
 
       - name: Upload Windows Build
         uses: actions/upload-artifact@v4
@@ -57,9 +59,11 @@ jobs:
       - name: Build for Linux
         run: |
           cd src
-          g++ -O3 -lm -fopenmp AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp -c
-          g++ main.cpp fluctuoscope.o  AGM_sfunctions.o fileutils.o stringutils.o paramfile.o -O3 -lm -fopenmp -o ../FSCOPE_linux
-          g++ -O3 -lm -fopenmp -shared -o ../fluctuoscope_extC.so -fPIC AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
+          g++ -O3 -lm -fopenmp -c AGM_sfunctions.cpp fileutils.cpp stringutils.cpp paramfile.cpp fluctuoscope.cpp
+          g++ main.cpp fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o -O3 -lm -fopenmp -static-libgcc -static-libstdc++ \
+              -Wl,-Bstatic -lgomp -Wl,-Bdynamic -o ../FSCOPE_linux
+          g++ -O3 -lm -fopenmp -shared -o ../fluctuoscope_extC.so -fPIC fluctuoscope.o AGM_sfunctions.o fileutils.o stringutils.o paramfile.o \
+              -static-libgcc -static-libstdc++ -Wl,-Bstatic -lgomp -Wl,-Bdynamic
 
       - name: Upload Linux Build
         uses: actions/upload-artifact@v4
